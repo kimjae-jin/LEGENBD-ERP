@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="ko" class="dark"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGEND ERP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css"></head><body class="bg-gray-900 text-gray-200 antialiased">
+
+    <div id="app" class="flex min-h-screen">
+        <aside id="sidebar" class="w-60 bg-gray-900/80 backdrop-blur-sm border-r border-gray-800 flex-shrink-0 p-4 flex flex-col">
+            <a href="#" class="text-2xl font-bold tracking-tighter text-white mb-8 block px-3">
+               <span class="text-blue-400">LEGEND</span> ERP
+            </a>
+            <nav class="space-y-1">
+                <a href="#" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700/50 rounded-md">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i>
+                    <span>대시보드</span>
+                </a>
+                <a href="#clients" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700/50 rounded-md">
+                    <i data-lucide="users" class="w-5 h-5 mr-3"></i>
+                    <span>거래처 관리</span>
+                </a>
+                <a href="#quotations" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700/50 rounded-md">
+                    <i data-lucide="file-spreadsheet" class="w-5 h-5 mr-3"></i>
+                    <span>견적 관리</span>
+                </a>
+                <a href="#employees" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700/50 rounded-md">
+                    <i data-lucide="contact-2" class="w-5 h-5 mr-3"></i>
+                    <span>직원 관리</span>
+                </a>
+                 <a href="#licenses" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700/50 rounded-md">
+                    <i data-lucide="shield-check" class="w-5 h-5 mr-3"></i>
+                    <span>면허 관리</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 flex flex-col">
+            <header class="bg-gray-900/80 backdrop-blur-sm sticky top-0 z-40 border-b border-gray-800">
+                <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                         <div id="notification-bell-container" class="relative"></div>
+                        <div id="header-actions" class="flex items-center space-x-4">
+                           </div>
+                    </div>
+                </div>
+            </header>
+
+            <main id="main-content" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+                </main>
+
+            <footer class="bg-gray-900 border-t border-gray-800 mt-auto">
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-500">
+                    &copy; 2025 LEGEND ERP. All rights reserved.
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <div id="modal-backdrop" class="fixed inset-0 bg-black/60 hidden z-50"></div>
+    <div id="modal-container" class="fixed inset-0 hidden z-50 p-4 flex items-center justify-center"></div>
+
+    <script type="module" src="app.js"></script></body></html>
