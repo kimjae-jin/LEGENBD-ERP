@@ -56,10 +56,10 @@ export function WeeklyReportGenerator() {
       <CardHeader>
         <div className="flex items-center gap-3">
           <FileText className="h-6 w-6 text-primary" />
-          <CardTitle>Weekly Report</CardTitle>
+          <CardTitle>주간 보고서</CardTitle> {/* 'Weekly Report' -> '주간 보고서' */}
         </div>
         <CardDescription>
-          Generate a summary of recent project notes for the weekly meeting.
+          주간 회의를 위한 최근 프로젝트 노트 요약을 생성합니다. {/* 'Generate a summary of recent project notes for the weekly meeting.' -> '주간 회의를 위한 최근 프로젝트 노트 요약을 생성합니다.' */}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center gap-4 pt-4">
@@ -73,12 +73,12 @@ export function WeeklyReportGenerator() {
           ) : (
             <Download className="mr-2 h-4 w-4" />
           )}
-          {isLoading ? 'Generating...' : 'Generate & Download Report'}
+          {isLoading ? '생성 중...' : '보고서 생성 및 다운로드'} {/* 'Generating...' / 'Generate & Download Report' -> '생성 중...' / '보고서 생성 및 다운로드' */}
         </Button>
         {error && (
           <div className="text-sm text-red-500 dark:text-red-400 flex items-center gap-2 mt-2">
             <AlertCircle className="h-4 w-4" />
-            <p>Error: {error}</p>
+            <p>오류: {error}</p> {/* 'Error: ' -> '오류: ' */}
           </div>
         )}
       </CardContent>
