@@ -1,0 +1,72 @@
+/* 파일 경로: frontend/src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* 라이트 모드 설정 (기본값 유지) */
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  /* 다크 모드 설정 (사용자 요청에 맞춰 수정됨) */
+  .dark {
+    --background: 224 71.4% 4.1%;   /* 배경: 순흑에 가까운 아주 진한 네이비 */
+    --foreground: 210 20% 98%;      /* 글자: 순백이 아닌 약간 부드러운 흰색 (눈뽕 방지) */
+    
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 210 20% 98%;
+    --primary-foreground: 224 71.4% 4.1%;
+
+    --secondary: 215 27.9% 16.9%;   /* 보조 배경: 약간 더 밝은 네이비 */
+    --secondary-foreground: 210 20% 98%;
+    
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%; /* 흐린 글자색 */
+    
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    
+    --border: 215 27.9% 16.9%;      /* 경계선 색상 */
+    --input: 215 27.9% 16.9%;       /* 입력 필드 배경 */
+    --ring: 216 12.2% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* 스크롤바 등 브라우저 UI의 기본 테마를 시스템에 맞게 조정합니다. */
+    color-scheme: light dark; 
+  }
+}
