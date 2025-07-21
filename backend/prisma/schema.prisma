@@ -1,0 +1,361 @@
+// This is your Prisma schema file for the "Legend ERP" project.
+// It is designed to work with a PostgreSQL database.
+//
+// Generated on: 7/17/2025
+// Schema Version: 3.0 (Consolidated from all phases)
+//
+// For more information, see: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===============================================
+//            1. PROJECT CORE MODELS
+// ===============================================
+
+// 프로젝트 마스터 정보
+model Project {
+  projectId       String  @id @default(cuid()) @map("project_id")
+  projectName     String  @map("project_name")
+  projectCategory String  @map("project_category")
+  pmId            String  @map("pm_id") // 프로젝트 관리자 ID
+  projectLocation String  @map("project_location")
+  summary         String? @db.Text
+  facilityType    String  @map("facility_type")
+  status          String  // 예: "In Progress", "Completed", "On Hold"
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  contracts             Contract[]
+  contractors           ProjectContractor[]
+  quotations            Quotation[]
+  participants          ProjectParticipant[]
+  individualPerformances IndividualPerformance[]
+
+  @@map("projects")
+}
+
+// 프로젝트 관련 계약 정보
+model Contract {
+  contractId        String  @id @default(cuid()) @map("contract_id")
+  projectId         String  @map("project_id")
+  contractType      String  @map("contract_type") // 예: "Design-Build", "CM", "Turnkey"
+  contractCategory  String  @map("contract_category") // 예: "Prime", "Subcontract"
+  contractDate      DateTime @map("contract_date")
+  startDate         DateTime @map("start_date")
+  endDate           DateTime @map("end_date")
+  totalAmount       Decimal @map("total_amount")
+  supplyAmount      Decimal @map("supply_amount")
+  vatAmount         Decimal @map("vat_amount")
+  totalEquityAmount Decimal @map("total_equity_amount")
+  equityRatio       Decimal @map("equity_ratio")
+  contractFileUrl   String? @map("contract_file_url")
+  remarks           String? @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  project    Project               @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  revisions  ContractRevision[]
+  jvPartners JointVenturePartner[]
+  invoices   Invoice[]
+
+  @@map("contracts")
+}
+
+// 계약 변경 이력
+model ContractRevision {
+  revisionId       String    @id @default(cuid()) @map("revision_id")
+  contractId       String    @map("contract_id")
+  revisionDate     DateTime  @map("revision_date")
+  revisedStartDate DateTime? @map("revised_start_date")
+  revisedEndDate   DateTime? @map("revised_end_date")
+  finalEndDate     DateTime  @map("final_end_date") // 최종 준공(예정)일
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  contract Contract @relation(fields: [contractId], references: [contractId], onDelete: Cascade)
+
+  @@map("contract_revisions")
+}
+
+// ===============================================
+//          2. PARTICIPANT & CLIENT MODELS
+// ===============================================
+
+// 거래처 마스터 데이터 (발주처, 협력사 등)
+model Client {
+  clientId         String  @id @default(cuid()) @map("client_id")
+  clientName       String  @map("client_name")
+  businessNumber   String  @unique @map("business_number")
+  corporateNumber  String? @unique @map("corporate_number")
+  ceoName          String  @map("ceo_name")
+  address          String
+  phone            String?
+  email            String?
+  clientType       String  @map("client_type") // 예: "Corporate", "Individual"
+  remarks          String? @db.Text
+
+  /// @encrypted - 이 필드는 애플리케이션 레벨에서 암호화되어야 합니다.
+  bankName         String? @map("bank_name")
+  /// @encrypted - 이 필드는 애플리케이션 레벨에서 암호화되어야 합니다.
+  accountNumber    String? @map("account_number")
+  /// @encrypted - 이 필드는 애플리케이션 레벨에서 암호화되어야 합니다.
+  accountHolder    String? @map("account_holder")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  projectContractors ProjectContractor[]
+  jvPartners         JointVenturePartner[]
+  invoices           Invoice[]
+  quotations         Quotation[]
+
+  @@map("clients")
+}
+
+// 프로젝트 참여사 정보 (발주처, 설계사, 감리사)
+model ProjectContractor {
+  projectContractorId String   @id @default(cuid()) @map("project_contractor_id")
+  projectId           String   @map("project_id")
+  clientId            String   @map("client_id") // Client 모델 외래키
+  role                String   // 예: "Client", "Architect", "Supervisor"
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  project Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [clientId], onDelete: Restrict)
+
+  @@map("project_contractors")
+}
+
+// 공동 도급사(JV) 정보
+model JointVenturePartner {
+  jvPartnerId String  @id @default(cuid()) @map("jv_partner_id")
+  contractId  String  @map("contract_id")
+  clientId    String  @map("client_id") // Client 모델 외래키
+  equityRatio Decimal @map("equity_ratio")
+  role        String  // 예: "Lead", "Member"
+  remarks     String? @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  contract Contract @relation(fields: [contractId], references: [contractId], onDelete: Cascade)
+  client   Client   @relation(fields: [clientId], references: [clientId], onDelete: Restrict)
+
+  @@map("joint_venture_partners")
+}
+
+// 개별 프로젝트 참여 인력
+model ProjectParticipant {
+  participantId String    @id @default(cuid()) @map("participant_id")
+  projectId     String    @map("project_id")
+  userId        String    @map("user_id") // Employee 또는 외부 사용자 ID
+  role          String    // 예: "Project Manager", "Engineer"
+  startDate     DateTime  @map("start_date")
+  endDate       DateTime? @map("end_date")
+  remarks       String?   @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  project Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  // Employee 모델과 직접적인 관계 설정 가능
+  // employee Employee @relation(fields: [userId], references: [employeeId])
+
+  @@map("project_participants")
+}
+
+
+// ===============================================
+//          3. FINANCIAL MODELS
+// ===============================================
+
+// 세금계산서/계산서 정보
+model Invoice {
+  invoiceId      String   @id @default(cuid()) @map("invoice_id")
+  contractId     String   @map("contract_id")
+  clientId       String   @map("client_id") // 청구 대상 거래처
+  invoiceNumber  String   @map("invoice_number")
+  issueDate      DateTime @map("issue_date")
+  dueDate        DateTime @map("due_date")
+  supplyAmount   Decimal  @map("supply_amount")
+  vatAmount      Decimal  @map("vat_amount")
+  totalAmount    Decimal  @map("total_amount")
+  status         String   // 예: "Issued", "Paid", "Overdue"
+  invoiceFileUrl String?  @map("invoice_file_url")
+  remarks        String?  @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  contract Contract @relation(fields: [contractId], references: [contractId], onDelete: Cascade)
+  client   Client   @relation(fields: [clientId], references: [clientId], onDelete: Restrict)
+
+  @@map("invoices")
+}
+
+// 견적 정보
+model Quotation {
+  quotationId     String   @id @default(cuid()) @map("quotation_id")
+  projectId       String   @map("project_id")
+  clientId        String   @map("client_id") // 견적 대상 거래처
+  quotationNumber String   @map("quotation_number")
+  issueDate       DateTime @map("issue_date")
+  validUntil      DateTime @map("valid_until")
+  totalAmount     Decimal  @map("total_amount")
+  status          String   // 예: "Draft", "Sent", "Accepted"
+  quotationFileUrl String? @map("quotation_file_url")
+  remarks         String?  @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  project Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  client  Client  @relation(fields: [clientId], references: [clientId], onDelete: Restrict)
+
+  @@map("quotations")
+}
+
+// ===============================================
+//         4. HR & ASSET MODELS
+// ===============================================
+
+// 직원 마스터 데이터
+model Employee {
+  employeeId   String @id @default(cuid()) @map("employee_id")
+  name         String
+  department   String
+  position     String
+  hireDate     DateTime @map("hire_date")
+  email        String   @unique
+  phone        String?
+
+  /// @encrypted - 이 필드는 애플리케이션 레벨에서 반드시 암호화되어야 합니다.
+  /// 주민등록번호와 같은 민감 정보를 나타냅니다.
+  residentRegistrationNumber String? @unique @map("resident_registration_number")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  qualifications         Qualification[]
+  trainings              Training[]
+  individualPerformances IndividualPerformance[]
+
+  @@map("employees")
+}
+
+// 직원 자격증 정보
+model Qualification {
+  qualificationId String   @id @default(cuid()) @map("qualification_id")
+  employeeId      String   @map("employee_id")
+  name            String   @map("qualification_name") // 예: "PMP", "건축사"
+  issuer          String   // 예: "PMI", "국토교통부"
+  issueDate       DateTime @map("issue_date")
+  expiryDate      DateTime? @map("expiry_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  employee Employee @relation(fields: [employeeId], references: [employeeId], onDelete: Cascade)
+
+  @@map("qualifications")
+}
+
+// 직원 교육 이력
+model Training {
+  trainingId   String   @id @default(cuid()) @map("training_id")
+  employeeId   String   @map("employee_id")
+  courseName   String   @map("course_name")
+  institution  String
+  startDate    DateTime @map("start_date")
+  endDate      DateTime @map("end_date")
+  completionStatus String @map("completion_status") // 예: "Completed", "In Progress"
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  employee Employee @relation(fields: [employeeId], references: [employeeId], onDelete: Cascade)
+
+  @@map("trainings")
+}
+
+// 개인 성과 평가
+model IndividualPerformance {
+  performanceId     String   @id @default(cuid()) @map("performance_id")
+  employeeId        String   @map("employee_id")
+  projectId         String   @map("project_id")
+  evaluationPeriod  String   @map("evaluation_period") // 예: "2025-Q3"
+  score             Decimal
+  comments          String?  @db.Text
+  evaluatorId       String   @map("evaluator_id") // 평가 관리자 ID
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  employee Employee @relation(fields: [employeeId], references: [employeeId], onDelete: Cascade)
+  project  Project  @relation(fields: [projectId], references: [projectId], onDelete: Restrict)
+
+  @@map("individual_performances")
+}
+
+// 회사 보유 면허
+model License {
+  licenseId    String    @id @default(cuid()) @map("license_id")
+  licenseName  String    @unique @map("license_name")
+  licenseNumber String   @unique @map("license_number")
+  issuer       String
+  issueDate    DateTime  @map("issue_date")
+  expiryDate   DateTime? @map("expiry_date")
+  fileUrl      String?   @map("file_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  equipment Equipment[]
+
+  @@map("licenses")
+}
+
+// 면허가 필요한 회사 장비
+model Equipment {
+  equipmentId     String   @id @default(cuid()) @map("equipment_id")
+  licenseId       String?  @map("license_id")
+  equipmentName   String   @map("equipment_name")
+  model           String
+  serialNumber    String   @unique @map("serial_number")
+  acquisitionDate DateTime @map("acquisition_date")
+  status          String   // 예: "Active", "In Repair", "Disposed"
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // --- Relations ---
+  license License? @relation(fields: [licenseId], references: [licenseId], onDelete: SetNull)
+
+  @@map("equipment")
+}
