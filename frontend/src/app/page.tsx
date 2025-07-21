@@ -1,11 +1,17 @@
-// ~/Desktop/LEGEND-ERP/frontend/src/app/page.tsx
+import { ModeToggle } from "@/components/mode-toggle";
 
-export default function HomePage() {
+export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold">LEGEND-ERP Root Page</h1>
-      <p className="mt-4 text-lg">If you see this, routing is now working correctly.</p>
-      <p className="mt-2 text-sm text-gray-400">The login screen should appear here.</p>
+      <div className="absolute top-5 right-5">
+        <ModeToggle />
+      </div>
+      <h1 className="text-4xl font-bold">
+        LEGENBD-ERP
+      </h1>
+      <p className="mt-4 text-muted-foreground">
+        The Foundation is Ready.
+      </p>
     </main>
   );
 }
